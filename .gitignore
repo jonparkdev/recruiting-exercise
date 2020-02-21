@@ -1,0 +1,3 @@
+node_modules
+
+./inventory-allocator/inventory_allocator/db.sqlite3
