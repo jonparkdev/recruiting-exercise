@@ -35,10 +35,10 @@ class WarehouseInventorySerializer(serializers.ModelSerializer):
 
     def get_items(self, warehouse):
         inventory = Inventory.objects.filter(warehouse=warehouse)
-        
+        inventory_dict = {}
         for item in inventory:
             item_name = ItemSerializer(item.item).data['name']
             item_quantity = item.quantity
-            inventory_dict[item_name] = item_quantityW
+            inventory_dict[item_name] = item_quantity
 
         return inventory_dict

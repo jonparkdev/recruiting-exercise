@@ -11,5 +11,7 @@ router.register(r'inventory', views.InventoryViewSet)
 
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('stock', views.get_warehouse_inventory),
+    #path('order', views.make_order)
 ]
