@@ -24,8 +24,8 @@ class Command(BaseCommand):
         for warehouse in WAREHOUSES:
             # generate random latitude and longitude for each warehouse in the
             # Greater Toronto Area
-            lat = round(np.random.uniform(-79.546811, -79.212679), 6)
-            lng = round(np.random.uniform(43.615780, 43.693207), 6)
+            lng = round(np.random.uniform(-79.546811, -79.212679), 6)
+            lat = round(np.random.uniform(43.615780, 43.693207), 6)
 
             Warehouse(name=warehouse, lat=lat, lng=lng).save()
 
