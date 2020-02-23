@@ -1,3 +1,123 @@
+# Inventory Allocator
+
+My solution to this recruitment challenge is a small restful API completed with the Django REST framework.  
+
+##### Why did I chose to complete it this way? 
+
+At my current position our backend is done with Django's ORM so I thought it would be a  good exercise to practice and reinforce the knowledge.
+
+## Set Up
+
+After cloning the repo, in your terminal (NOTE - I am using pipenv for my python virtual env):
+
+```bash
+$ cd recruiting-exercise/inventory-allocator/
+$ pipenv --python 3
+$ pipenv shell
+$ pipenv install 
+$ cd inventory_allocator/
+$ python manage.py migrate
+```
+
+At this point you can do 1 of 2 things:
+
+1)  Run the command:
+
+```bash
+$ python manage.py generate_data
+```
+
+Which will populate the database with warehouses and items, using randomly generated stock for each warehouse
+
+or
+
+2) Run the command:
+
+```bash
+$ python manage.py loaddata db_dump
+```
+
+Which is data I generated from the above option but modified to have correct latitude and longitude for each warehouse (more on that below).  I also use this fixture for my unit tests.
+
+In reference to the coordinates, I decided to give each warehouse a location as a means to identify which warehouses are cheapest to ship from. That is, I have defined that the closer the warehouse is to the order, the cheaper the cost it is to ship.
+
+## How to use
+
+Run the command:
+
+```bash
+$ python manage.py test
+```
+
+to run all the unit tests.
+
+### Endpoints
+
+First start the server:
+
+```bash
+$ python manage.py runserver
+```
+
+The server should be running on port 8000.
+
+The two endpoints that are important for functionality are:
+
+```
+/stock
+/order
+```
+
+First to see if everything is working fine from the above 'Set Up', you can run the shell command:
+
+```bash
+$ curl  http://localhost:8000/stock
+```
+
+The response will return a  list of warehouses and their stock of each item. The database is populated with the following items: 
+
+```python
+WAREHOUSES = ['Markham', 'Toronto', 'Mississauga', 'Waterloo', 'London']
+ITEMS = ['Lemon', 'Lime', 'Banana', 'Eggs', 'Bread', 'Chicken Legs',
+         'New York Striploin', 'Orange', 'Potatos', 'Ground Pork']
+```
+
+Also try,
+
+```bash
+$ curl http://localhost:8000/stock?warehouse='Markham'
+```
+
+You can query the stock of specific warehouses.  If the warehouse query is provided with endpoint but the string is not in the database then a 400 bad request is returned.
+
+Finally, to make an order:
+
+```bash
+$ curl -H 'Content-Type: application/json' \
+> -X POST \
+> -d '{"order": {"Lemon": 10, "New York Striplon": 3, "Ground Pork": 2}}' \
+> http://localhost:8000/order
+```
+
+In the above request, the data only contains the 'order'. When this is the case the default location of the order is Toronto but you can specify latitude and longitude like the following: 
+
+```bash
+$ curl -H 'Content-Type: application/json' \
+> -X POST \
+> -d '{"order": {"Lemon": 10, "New York Striplon": 3, "Ground Pork": 2}, "lat": 43.6532, "lng": -79.3832}' \
+> http://localhost:8000/order
+```
+
+You will notice if you play with the lat and lng your responses will return differently each time due to the proximity of the warehouses to the order. Closer the warehouse, cheaper the cost to ship.
+
+After a request has been made, you can send a request to the /stock endpoint to see the changes made to the database.
+
+#### I think that's about it. Thank you for your time and the opportunity to apply for this position.
+
+
+
+---
+
 
 
 ### Problem
