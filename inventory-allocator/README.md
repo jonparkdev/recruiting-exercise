@@ -2,7 +2,7 @@
 
 My solution to this recruitment challenge is a small restful API completed with the Django REST framework.  
 
-##### Why did I chose to complete it this way? 
+##### Why did I chose to complete it this way?
 
 At my current position our backend is done with Django's ORM so I thought it would be a  good exercise to practice and reinforce the knowledge.
 
@@ -14,7 +14,7 @@ After cloning the repo, in your terminal (NOTE - I am using pipenv for my python
 $ cd recruiting-exercise/inventory-allocator/
 $ pipenv --python 3
 $ pipenv shell
-$ pipenv install 
+$ pipenv install
 $ cd inventory_allocator/
 $ python manage.py migrate
 ```
@@ -74,7 +74,7 @@ First to see if everything is working fine from the above 'Set Up', you can run 
 $ curl  http://localhost:8000/stock
 ```
 
-The response will return a  list of warehouses and their stock of each item. The database is populated with the following items: 
+The response will return a  list of warehouses and their stock of each item. The database is populated with the following items:
 
 ```python
 WAREHOUSES = ['Markham', 'Toronto', 'Mississauga', 'Waterloo', 'London']
@@ -95,16 +95,16 @@ Finally, to make an order:
 ```bash
 $ curl -H 'Content-Type: application/json' \
 > -X POST \
-> -d '{"order": {"Lemon": 10, "New York Striplon": 3, "Ground Pork": 2}}' \
+> -d '{"order": {"Lemon": 10, "New York Striploin": 3, "Ground Pork": 2}}' \
 > http://localhost:8000/order
 ```
 
-In the above request, the data only contains the 'order'. When this is the case the default location of the order is Toronto but you can specify latitude and longitude like the following: 
+In the above request, the data only contains the 'order'. When this is the case the default location of the order is Toronto but you can specify latitude and longitude like the following:
 
 ```bash
 $ curl -H 'Content-Type: application/json' \
 > -X POST \
-> -d '{"order": {"Lemon": 10, "New York Striplon": 3, "Ground Pork": 2}, "lat": 43.6532, "lng": -79.3832}' \
+> -d '{"order": {"Lemon": 10, "New York Striploin": 3, "Ground Pork": 2}, "lat": 43.6532, "lng": -79.3832}' \
 > http://localhost:8000/order
 ```
 
@@ -122,28 +122,28 @@ After a request has been made, you can send a request to the /stock endpoint to 
 
 ### Problem
 
-The problem is compute the best way an order can be shipped (called shipments) given inventory across a set of warehouses (called inventory distribution). 
+The problem is compute the best way an order can be shipped (called shipments) given inventory across a set of warehouses (called inventory distribution).
 
 Your task is to implement InventoryAllocator class to produce the cheapest shipment.
 
-The first input will be an order: a map of items that are being ordered and how many of them are ordered. For example an order of apples, bananas and oranges of 5 units each will be 
+The first input will be an order: a map of items that are being ordered and how many of them are ordered. For example an order of apples, bananas and oranges of 5 units each will be
 
 `{ apple: 5, banana: 5, orange: 5 }`
 
 The second input will be a list of object with warehouse name and inventory amounts (inventory distribution) for these items. For example the inventory across two warehouses called owd and dm for apples, bananas and oranges could look like
 
-`[ 
+`[
     {
     	name: owd,
     	inventory: { apple: 5, orange: 10 }
-    }, 
+    },
     {
     	name: dm:,
-    	inventory: { banana: 5, orange: 10 } 
+    	inventory: { banana: 5, orange: 10 }
     }
 ]`
 
-You can assume that the list of warehouses is pre-sorted based on cost. The first warehouse will be less expensive to ship from than the second warehouse. 
+You can assume that the list of warehouses is pre-sorted based on cost. The first warehouse will be less expensive to ship from than the second warehouse.
 
 You can use any language of your choice to write the solution (internally we use Typescript/Javascript, Python, and some Java). Please write unit tests with your code, a few are mentioned below, but these are not comprehensive. Fork the repository and put your solution inside of the src directory and include a way to run your tests!
 
@@ -171,4 +171,4 @@ We'll evaluate your code via the following guidelines in no particular order:
 1. **Readability**: naming, spacing, consistency
 2. **Correctness**: is the solution correct and does it solve the problem
 1. **Test Code Quality**: Is the test code comperehensive and covering all cases.
-1. **Tool/Language mastery**: is the code using up to date syntax and techniques. 
+1. **Tool/Language mastery**: is the code using up to date syntax and techniques.
