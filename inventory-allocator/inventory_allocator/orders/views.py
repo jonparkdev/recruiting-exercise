@@ -64,7 +64,7 @@ def make_order(request):
                         status=status.HTTP_400_BAD_REQUEST)
 
     if my_coordinates is None:
-        return Response({'Please check the structure of coordinates and the' \
+        return Response({'Please check the structure of coordinates and the ' \
                          'range of both latitude and longitude'},
                         status=status.HTTP_400_BAD_REQUEST)
 
