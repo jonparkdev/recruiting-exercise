@@ -46,7 +46,7 @@ In reference to the coordinates, I decided to give each warehouse a location as 
 Run the command:
 
 ```bash
-$ python manage.py test
+$ python manage.py test orders.tests
 ```
 
 to run all the unit tests.

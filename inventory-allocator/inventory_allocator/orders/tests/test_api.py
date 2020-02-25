@@ -175,6 +175,7 @@ class OrderTests(APITransactionTestCase):
         self.assertEqual(response_get_stock_after.data,
             mississauga_stock_second_order)
 
+
         """
         Test unfulfilled orders
         """
@@ -184,6 +185,7 @@ class OrderTests(APITransactionTestCase):
         self.assertEqual(response_out_of_stock.status_code, status.HTTP_200_OK)
         self.assertEqual(response_out_of_stock.data, [])
 
+
         """
         Error Testing
         """
@@ -192,9 +194,15 @@ class OrderTests(APITransactionTestCase):
             url_order, {"order": {"avacado": 1}}, format='json')
         self.assertEqual(error_1.status_code, status.HTTP_400_BAD_REQUEST)
 
+        # Item does not exist with item that exists
+        error_9 =  self.client.post(
+            url_order, {"order": {"Lemon": 1, "avacado": 1}}, format='json')
+        self.assertEqual(error_9.status_code, status.HTTP_400_BAD_REQUEST)
+
         # Bad Input tests
         error_6 =  self.client.post(
-            url_order, {"order": {"Lemon": 50}, "something": "else"}, format='json')
+            url_order, {"order": {"Lemon": 50}, "something": "else"},
+                format='json')
         self.assertEqual(error_6.status_code, status.HTTP_400_BAD_REQUEST)
 
         error_2 =  self.client.post(
@@ -202,19 +210,44 @@ class OrderTests(APITransactionTestCase):
         self.assertEqual(error_2.status_code, status.HTTP_400_BAD_REQUEST)
 
         # type checking
+        # string
         error_3 =  self.client.post(
             url_order, "string", format='json')
         self.assertEqual(error_3.status_code, status.HTTP_400_BAD_REQUEST)
-
+        # list
         error_4 =  self.client.post(
             url_order, [{"order": {"avacado": 1}}], format='json')
         self.assertEqual(error_4.status_code, status.HTTP_400_BAD_REQUEST)
-
+        # int
         error_5 =  self.client.post(
             url_order, 42, format='json')
         self.assertEqual(error_5.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # # Ordering 0 of an item
-        # error =  self.client.post(
-        #     url_order, {"order": {"Lemon": 0}}, format='json')
-        # self.assertEqual(error.status_code, status.HTTP_400_BAD_REQUEST)
+        # negative numbers
+        error_7 =  self.client.post(
+            url_order,{"order": {"Lemon": -4}}, format='json')
+        self.assertEqual(error_7.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # zero
+        error_8 =  self.client.post(
+             url_order, {"order": {"Lemon": 0}}, format='json')
+        self.assertEqual(error_8.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Wrong key values
+        error_10 =  self.client.post(
+             url_order, {"order": {"Lemon": 1}, 'latitd': 40.00, 'long': -90.00}
+                , format='json')
+        self.assertEqual(error_10.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Invalid range for latitude and longitude lat -> [-90,90] and
+        # lng -> [-180, 180]
+        error_11 =  self.client.post(
+             url_order, {"order": {"Lemon": 1}, 'lat': 90.10, 'lng': 290.00}
+                , format='json')
+        self.assertEqual(error_11.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Coordinates withour order
+        error_12 =  self.client.post(
+             url_order, {'lat': 80.000, 'lng': -170.00}
+                , format='json')
+        self.assertEqual(error_12.status_code, status.HTTP_400_BAD_REQUEST)

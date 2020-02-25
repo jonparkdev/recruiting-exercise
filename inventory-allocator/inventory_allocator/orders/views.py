@@ -85,7 +85,6 @@ def make_order(request):
     sorted_warehouses = sorted(warehouse_distances,
                                key= lambda i: i['distance'],
                                )
-    print(sorted_warehouses)
 
     try:
         # keep track of successful item/warehouse hits in order
@@ -95,7 +94,12 @@ def make_order(request):
 
         for k, v in order.items():
             # Keep count of how many k's needed for the order
-            order_count = v
+            if isinstance(v, int) and v > 0:
+                order_count = v
+            else:
+                return Response({'Please input a valid number greater than' \
+                                 ' 0 for all items in the order '},
+                                 status.HTTP_400_BAD_REQUEST)
 
             # The assumption being made in the below query is that if the item
             # does not exist in the db's items table, then it does not exist in
