@@ -9,6 +9,8 @@ from rest_framework.decorators import action, api_view
 from rest_framework.permissions import AllowAny
 from orders.utils import calculate_distance, parse_order
 
+import json
+
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
@@ -31,29 +33,41 @@ class InventoryViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 def get_warehouse_inventory(request):
     query = request.query_params
-    location = query.get('location', None)
-    if location is None:
-        queryset = Warehouse.objects.all()
-        serialized = WarehouseInventorySerializer(queryset, many=True).data
-        return Response(serialized)
-    else:
+    location = query.get('warehouse', None)
+    if len(query) > 1 or location is None and len(query) == 1:
+        return Response({'Invalid query parameters'},
+            status.HTTP_400_BAD_REQUEST)
+    elif location is not None:
         try:
             queryset = Warehouse.objects.get(name=location)
             serialized = WarehouseInventorySerializer(queryset).data
             return Response(serialized)
         except Exception:
-            return Response({"This warehouse location does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"This warehouse location does not exist"},
+                status=status.HTTP_400_BAD_REQUEST)
+    else:
+        queryset = Warehouse.objects.all()
+        serialized = WarehouseInventorySerializer(queryset, many=True).data
+        return Response(serialized)
+
+
+
 
 @api_view(['POST'])
 def make_order(request):
-
     # type checking
     my_coordinates, order = parse_order(request.data)
 
     if order is None:
-        return Response({'No order was specified in the request or invalid' \
-                         'data'},
+        return Response({'No order was specified or invalid format or data ' \
+                         'in the request'},
                         status=status.HTTP_400_BAD_REQUEST)
+
+    if my_coordinates is None:
+        return Response({'Please check the structure of coordinates and the' \
+                         'range of both latitude and longitude'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
     # Calculate distance values for warehouses and sort them from
     # nearest to furthest.  The assumption being made here is that closer
@@ -70,12 +84,14 @@ def make_order(request):
                                      'distance': distance })
     sorted_warehouses = sorted(warehouse_distances,
                                key= lambda i: i['distance'],
-                               reverse=True)
+                               )
+    print(sorted_warehouses)
 
     try:
         # keep track of successful item/warehouse hits in order
         track_stock = {}
-        
+        # keep track of database changes
+        database_changes = []
 
         for k, v in order.items():
             # Keep count of how many k's needed for the order
@@ -107,11 +123,16 @@ def make_order(request):
                         except KeyError:
                             track_stock[warehouse['name']] = { k: inventory_stock }
                         order_count = order_count - inventory_stock
+                        database_changes.append((inventory_object,
+                                                { 'quantity': 0}))
                     else:
                         try:
                             track_stock[warehouse['name']][k] = order_count
                         except KeyError:
                             track_stock[warehouse['name']] = { k : order_count }
+                        database_changes.append(
+                            (inventory_object,
+                            { 'quantity': inventory_stock - order_count}))
                         order_count = 0
                         break
 
@@ -121,6 +142,13 @@ def make_order(request):
             # If none of the warehouses have stock on item, return empty array
             if (order_count != 0):
                 return Response([])
+
+        # Make database changes to inventory
+        for inventory, quantity in database_changes:
+            update_inventory = InventorySerializer(
+                inventory, data=quantity, partial=True)
+            update_inventory.is_valid()
+            update_inventory.save()
 
         # configure data for output
         response = [ { k: v } for k, v in track_stock.items() ]

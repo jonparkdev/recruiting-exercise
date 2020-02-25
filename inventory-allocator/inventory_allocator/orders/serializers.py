@@ -2,7 +2,6 @@ from rest_framework import serializers
 from orders.models import *
 
 
-
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse

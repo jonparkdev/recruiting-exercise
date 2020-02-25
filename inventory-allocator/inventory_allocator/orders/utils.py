@@ -1,4 +1,6 @@
 import numpy as np
+from rest_framework.response import Response
+from rest_framework import status
 # File for helper functions
 
 # calculate distance in km between two coordinates
@@ -22,6 +24,18 @@ def calculate_distance(warehouse, home):
 
 # function to parse data in request
 def parse_order(data):
+    # Check format of data in request
+    PARAMS = ['order', 'lat', 'lng']
+    # test if data is of the write type and structure
+    try:
+        for key, val in data.items():
+            if key in PARAMS:
+                continue
+            else:
+                return [None, None]
+    except AttributeError:
+        return [None, None]
+
     # If no lat or lng are specified in the HTTP request then it will default
     # to Toronto
     lat = data.get('lat', 43.6532)
@@ -36,5 +50,11 @@ def parse_order(data):
 
     if(not isinstance(order, dict)):
         order = None
+
+    # test if coordinates fall in the right range
+    # latitude --> [-90, 90]
+    # longitude --> [-180, 180]
+    if not -90 < lat < 90 or not -180 < lng < 180:
+        my_coordinates = None
 
     return [my_coordinates, order]
